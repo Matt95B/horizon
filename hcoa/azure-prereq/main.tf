@@ -43,6 +43,9 @@ variable "service_principal_roles" {
 variable "compute_read_only_roles" {
     type = list(string)
 }
+variable "service_principal_owners" {
+    type = list(string)
+}
 
 # Configure the Azure Resource Manager Provider
 terraform {
@@ -206,16 +209,19 @@ resource "azurerm_role_definition" "compute_read_only_role" {
 
 # Create Service Principal
 data "azuread_client_config" "current" {}
+data "azuread_users" "owner_users" {
+    user_principal_names = var.service_principal_owners
+}
 
 resource "azuread_application" "ent_application" {
     display_name    = var.identities.service_principal_name
-    owners          = [data.azuread_client_config.current.object_id]
+    owners          = concat([data.azuread_client_config.current.object_id], data.azuread_users.owner_users.object_ids)
 }
 
 resource "azuread_service_principal" "service_principal" {
     client_id                       = azuread_application.ent_application.client_id
     app_role_assignment_required    = false
-    owners                          = [data.azuread_client_config.current.object_id]
+    owners                          = concat([data.azuread_client_config.current.object_id], data.azuread_users.owner_users.object_ids)
 }
 
 # Create Service Principal Password

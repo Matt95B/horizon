@@ -95,8 +95,7 @@ terraform output service_principal_pwd_key
 https://docs.omnissa.com/bundle/HorizonCloudServicesUsingNextGenGuide/page/RequirementsChecklistforDeployingaMicrosoftAzureEdge.html
 
 # Changelog
-2024-11-25 - Removed Azure Resource Providers registration from Terraform workflow. Resource Providers registration is now done via PowerShell instead to avoid (1)registration errors if already resgisterred and (2)retain registration during Terraform destroy.
-
-2024-11-19 - Added the option to select connectivity type for the management subnet (NAT vs Route).
-
-2024-11-06 - Initial release.
+- 2024-12-06: Ability to add additonal application owners to the service principal.
+- 2024-11-25: Removed Azure Resource Providers registration from Terraform workflow. Resource Providers registration is now done via PowerShell instead to avoid (1)registration errors if already resgisterred and (2)retain registration during Terraform destroy.
+- 2024-11-19: Added the option to select connectivity type for the management subnet (NAT vs Route).
+- 2024-11-06: Initial release.
