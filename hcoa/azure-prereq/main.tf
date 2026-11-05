@@ -37,12 +37,6 @@ variable "route_table" {
 variable "identities" {
     type = map(string)
 }
-variable "service_principal_roles" {
-    type = list(string)
-}
-variable "compute_read_only_roles" {
-    type = list(string)
-}
 variable "service_principal_owners" {
     type = list(string)
 }
@@ -185,28 +179,6 @@ resource "azurerm_role_assignment" "assign_identity_managed_identity_operator" {
     principal_id         = azurerm_user_assigned_identity.managed_identity.principal_id
 }
 
-# Create Custom Service Principal Role
-resource "azurerm_role_definition" "service_principal_role" {
-    name                    = var.identities.service_principal_role_name
-    description             = var.identities.service_principal_role_description
-    scope                   = "/subscriptions/${var.azure.subscription_id}"
-    permissions {
-        actions             = var.service_principal_roles
-        not_actions         = []
-    }
-}
-
-# Create Custom Compute Gallery Read-Only Role
-resource "azurerm_role_definition" "compute_read_only_role" {
-    name                    = var.identities.compute_ro_role_name
-    description             = var.identities.compute_ro_role_description
-    scope                   = "/subscriptions/${var.azure.subscription_id}"
-    permissions {
-        actions             = var.compute_read_only_roles
-        not_actions         = []
-    }
-}
-
 # Create Service Principal
 data "azuread_client_config" "current" {}
 data "azuread_users" "owner_users" {
@@ -231,15 +203,10 @@ resource "azuread_application_password" "service_principal_password" {
     end_date            = timeadd(timestamp(), var.identities.service_principal_secret_expiry)
 }
 
-# Assign the Service Principal Roles
+# Assign the Service Principal Role
 resource "azurerm_role_assignment" "assign_service_principal_role" {
     scope                = "/subscriptions/${var.azure.subscription_id}"
-    role_definition_name = azurerm_role_definition.service_principal_role.name
-    principal_id         = azuread_service_principal.service_principal.object_id
-}
-resource "azurerm_role_assignment" "assign_compute_read_only_role" {
-    scope                = "/subscriptions/${var.azure.subscription_id}"
-    role_definition_name = azurerm_role_definition.compute_read_only_role.name
+    role_definition_name = "Contributor"
     principal_id         = azuread_service_principal.service_principal.object_id
 }
 
